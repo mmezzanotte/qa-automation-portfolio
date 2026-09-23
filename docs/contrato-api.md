@@ -170,7 +170,7 @@ regla completa; registra el caso, la fecha y el resultado.
 | # | Endpoint y dato | Lo que dice el contrato (REQ) | Lo que respondió el producto | Cómo lo verifiqué | Fecha |
 |---|---|---|---|---|---|
 | 1 | `POST /api/enroll` con `{"courseId":"fundamentos"}` (requiere sesión activa) | `200` con `status: "inscrito"` — REQ-A03 | `401` Unauthorized — sin cookie de sesión activa el endpoint rechaza la request | curl sin header `Cookie`, 2026-09-23 | 2026-09-23 |
-| 4 | `POST /api/enroll` con `{"courseId":"api-testing"}` (sin cupos) | `200` con `status: "lista-espera"` — REQ-A03 · REQ-C02 · REQ-C05 | `[PENDIENTE — ejecutar con curl y pegar body completo]` | [PENDIENTE] | [PENDIENTE] |
+| 4 | `POST /api/enroll` con `{"courseId":"api-testing"}` (sin cupos) | `200` con `status: "lista-espera"` — REQ-A03 · REQ-C02 · REQ-C05 | `200` — `{"courseId":"api-testing","status":"lista-espera","displayStatus":"inscrito","progress":0,"certificates":0,"message":"Sin cupos para \"API Testing con Playwright\". Agregado a lista de espera.","spotsLeft":0}` — ⚠️ **Discrepancia:** `displayStatus` dice `"inscrito"` aunque el status es `lista-espera`. REQ-C05 exige que el badge muestre `"Lista de espera"`, no `"Inscrito"`. | curl.exe con cookie de sesión activa, 2026-09-23 | 2026-09-23 |
 
 **Formato de una fila bien escrita** — es un ejemplo, no es tu hallazgo:
 
