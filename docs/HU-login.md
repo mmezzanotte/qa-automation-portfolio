@@ -1,78 +1,35 @@
-# HU-Login — Historia de Usuario
+# HU-LOG-01 — Inicio de sesión
 
-> Fuente: definición del curso / backlog del proyecto portfolio  
-> Playground: https://playground.calidadsinhumo.com/login
+> **Sistema:** Academia sin Humo · `playground.calidadsinhumo.com/login`
+> **Fuente de los requerimientos:** `playground.calidadsinhumo.com/documentacion`, sección 2
+> (REQ-L01 a REQ-L04), copiados palabra por palabra el 2026-09-19.
+> **Quién la escribió:** historia de ejemplo armada para el curso a partir de esos requerimientos. En
+> un equipo real la escribe producto; aquí tiene el formato que suele llegar a un sprint.
 
 ---
 
-## Historia de usuario
+## Historia
 
-**Como** usuario registrado,  
-**quiero** poder iniciar sesión con mi email y contraseña,  
-**para** acceder a las funciones del sistema de manera segura.
+**Como** estudiante registrada en la academia,
+**quiero** iniciar sesión con mi email y mi contraseña,
+**para** entrar a mi cuenta y seguir mis cursos.
 
 ---
 
 ## Criterios de aceptación
 
-### CA-L01 — Login exitoso
-
-**Dado** que el usuario tiene credenciales válidas  
-**Cuando** ingresa su email y contraseña correctos y hace clic en "Iniciar sesión"  
-**Entonces** el sistema redirige al dashboard y muestra un mensaje de bienvenida
-
-### CA-L02 — Credenciales inválidas
-
-**Dado** que el usuario ingresa credenciales incorrectas  
-**Cuando** hace clic en "Iniciar sesión"  
-**Entonces** el sistema muestra un mensaje de error y permanece en la página de login
-
-### CA-L03 — Campos requeridos
-
-**Dado** que el usuario no completa algún campo requerido  
-**Cuando** hace clic en "Iniciar sesión"  
-**Entonces** el sistema muestra mensajes de validación para los campos vacíos
-
-### CA-L04 — Formato de email
-
-**Dado** que el usuario ingresa un email con formato inválido  
-**Cuando** hace clic en "Iniciar sesión"  
-**Entonces** el sistema muestra un mensaje de validación de formato
-
----
-
-## Elementos de la pantalla
-
-| Elemento | Tipo | Locator preferido |
+| ID | Criterio | Requerimiento |
 |---|---|---|
-| Campo Email | Input tipo email | `getByLabel('Email')` |
-| Campo Contraseña | Input tipo password | `getByLabel('Contraseña')` |
-| Botón Iniciar sesión | Button | `getByRole('button', { name: 'Iniciar sesión' })` |
-| Mensaje de error | Texto | `getByText(...)` o por clase |
-| Enlace a Registro | Link | `getByRole('link', { name: 'Regístrate' })` |
+| CA1 | El login requiere email y contraseña. Ambos son obligatorios. | REQ-L01 |
+| CA2 | Las credenciales se validan contra los usuarios registrados. Un email no registrado o una contraseña incorrecta muestran un mensaje de error. | REQ-L02 |
+| CA3 | Rate limiting: después de 5 intentos fallidos consecutivos, la cuenta se bloquea por 30 segundos. Durante el bloqueo: el botón de login debe estar deshabilitado; un timer visual muestra los segundos restantes; el botón se habilita exactamente cuando el timer llega a 0. | REQ-L03 |
+| CA4 | Tras un login exitoso, el sistema muestra un mensaje de bienvenida con el nombre del usuario. | REQ-L04 |
 
 ---
 
-## Casos de prueba derivados
+## Notas del equipo
 
-Ver `docs/casos-login.md` para la lista completa de casos de prueba con sus pasos
-y criterios de aceptación observables.
-
----
-
-## Notas de implementación
-
-- URL del playground: `https://playground.calidadsinhumo.com/login`
-- No incluir credenciales reales en ningún archivo del repositorio
-- Los locators se comprueban en DevTools antes de usarlos en tests (ver `docs/mapa-selectores.md`)
-
----
-
-## Estado
-
-| CA | Descripción | Caso de prueba | Automatizado |
-|---|---|---|---|
-| CA-L01 | Login exitoso | CP-L01 | ❌ |
-| CA-L02 | Credenciales inválidas | CP-L02, CP-L03 | ❌ |
-| CA-L03 | Campos requeridos | CP-L04 | ❌ |
-| CA-L04 | Formato de email | CP-L05 | ❌ |
+- El login es la puerta de entrada: las páginas `/cursos` y `/mi-progreso` requieren sesión
+  (REQ-S01). Si el login falla, nadie llega a sus cursos.
+- La pantalla publica una cuenta de prueba: `ana.garcia@ejemplo.com` / `Segura2026!`.
+- La documentación no fija el texto de ningún mensaje de la pantalla de login.

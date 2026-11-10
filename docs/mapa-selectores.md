@@ -1,8 +1,5 @@
 # Selectores y locators — procedimiento y decisiones
 
-Un **selector CSS** es un texto que busca un elemento por datos de su HTML. Un **locator** es una
-instrucción que Playwright usa para encontrar un elemento cuando realiza una acción o comprobación.
-
 > **La primera mitad es el procedimiento de S3**: no se llena, se usa. Lo vas a reabrir cada vez que
 > automatices una pantalla nueva.
 >
@@ -16,7 +13,7 @@ instrucción que Playwright usa para encontrar un elemento cuando realiza una ac
 2. **Pegas la instrucción de abajo + ese HTML** en la IA, en un solo mensaje.
 3. **Compruebas cada propuesta en DevTools** antes de aceptar ninguna.
 
-El paso 3 no se delega: tú decides si el resultado corresponde al elemento real de la pantalla.
+El paso 3 no se delega. Es el único que te pagan.
 
 ## La instrucción
 
@@ -71,27 +68,6 @@ Un número solo no es una comprobación. `1` puede ser un elemento equivocado.
 Revisa que el fragmento no lleve datos privados, tokens ni credenciales reales. En este playground
 son de demostración. En tu empresa esto se revisa siempre, sin excepción.
 
-## Cómo leer una etiqueta y un atributo del HTML
-
-Ejemplo:
-
-```html
-<a href="/registro">Regístrate</a>
-```
-
-- `a` es la etiqueta HTML que crea un enlace.
-- `href` es el atributo que indica a qué dirección lleva el enlace.
-- `/registro` es el valor de ese atributo.
-
-Este selector:
-
-```css
-a[href="/registro"]
-```
-
-se lee: «busca una etiqueta `a` cuyo atributo `href` sea exactamente `/registro`». Si DevTools
-resalta “Regístrate”, di **enlace**, no botón.
-
 ## De qué depende cada tipo de selector
 
 No hay un ganador universal. Lo que se rompe no es el selector: es aquello de lo que depende.
@@ -111,9 +87,12 @@ no identifica *el email del login*: identifica *el email de la página que esté
 
 # Refinamiento de S4
 
-Hoy le sumamos a lo anterior funciones de Playwright como `getByLabel` y `getByRole`. Por ejemplo,
-`getByLabel('Email')` busca el campo asociado a la etiqueta Email, y
-`getByRole('button', { name: 'Iniciar sesión' })` busca el botón con ese nombre.
+> **Retirada en C12 (7 de octubre de 2026).** Los locators del login viven en `pages/login.page.ts`:
+> es código que se ejecuta y que avisa cuando está mal. Esta tabla queda como registro de **por qué**
+> se eligió cada uno y ya no se actualiza. Si un locator del login cambia, se cambia en el page object.
+
+Hoy le sumamos a lo anterior los **locators de Playwright**, que buscan por cómo una persona percibe
+el elemento —su rol, su etiqueta, su texto visible—, un criterio que CSS no puede expresar.
 
 ## LEES · Instrucción de refinamiento
 
@@ -121,9 +100,6 @@ Hoy le sumamos a lo anterior funciones de Playwright como `getByLabel` y `getByR
 Para cada selector CSS ya comprobado, propone un locator de Playwright que represente cómo una
 persona reconoce el elemento. Usa solo información observable en el HTML entregado. Señala qué
 condición podría hacer fallar tu propuesta. No modifiques archivos y detente para que yo valide.
-
-Ejemplo del formato esperado: para un campo con la etiqueta visible Email, una propuesta puede ser
-page.getByLabel('Email'). Explica siempre qué texto, etiqueta o rol del HTML respalda la propuesta.
 ```
 
 Comparada con la instrucción de S3 cambió una cosa y se agregó otra:
@@ -138,16 +114,17 @@ Comparada con la instrucción de S3 cambió una cosa y se agregó otra:
 > devolvió `npm test`. Un locator sin ejecutar sigue siendo una propuesta, y una propuesta no se
 > registra.
 
-| Elemento | Selector CSS | Locator de Playwright propuesto | Evidencia ejecutable | Decisión y límite |
+| Elemento | Selector CSS | Locator semántico propuesto | Evidencia ejecutable | Decisión y límite |
 |---|---|---|---|---|
-| Campo email | | | | |
-| Campo contraseña | | | | |
-| Botón Iniciar sesión | | | | |
-| Caso donde conservamos CSS o test id (opcional) | | No aplica | | |
+| Campo email | `[data-testid="login-email"]` | `getByLabel('Email')` | **Evidencia histórica de C4:** `tests/comprobar-locators.spec.ts` comprobó una coincidencia visible; `Materiales-S4.md` registró `1 passed`. | Conservamos el locator por etiqueta porque representa cómo una persona reconoce el campo. Deja de ser válido si cambia o desaparece la etiqueta accesible `Email`. |
+| Campo contraseña | `[data-testid="login-password"]` | `getByLabel('Contraseña')` | **Evidencia histórica de C4:** el mismo test comprobó una coincidencia visible dentro de la ejecución registrada como `1 passed`. | Conservamos el locator por etiqueta por la misma razón. Deja de ser válido si cambia o desaparece la etiqueta accesible `Contraseña`. |
+| Botón Iniciar sesión | `[data-testid="login-submit"]` | `getByRole('button', { name: 'Iniciar sesión' })` | **Evidencia histórica de C4:** el mismo test comprobó una coincidencia visible dentro de la ejecución registrada como `1 passed`. | Conservamos rol y nombre accesible porque describen el control como lo percibe una persona. Deja de ser válido si cambia el rol o el nombre accesible. |
+| Saludo tras el login | `[data-testid="login-welcome"]` | `getByTestId('login-welcome')` | **Comprobación directa del 2026-09-27:** el código servido por el producto contiene un `<h1 data-testid="login-welcome">` cuyo texto se forma como `¡Hola, {primer nombre}!`; `POST /api/login` respondió `200` para la cuenta demo y devolvió `Ana García`. **Runtime Playwright pendiente:** Chromium no inició por `SystemAppearance not found`, antes de abrir la página. | Conservamos **este** test id como decisión propuesta, no como regla universal. La estructura y los datos actuales lo respaldan, pero el gate de ejecución Playwright debe completarse antes de impartir C10. Depende de que el equipo mantenga `login-welcome`. |
+| Mensaje de error del login | `[data-testid="login-error"]` | `getByTestId('login-error')` | **Ejecución Playwright del 2026-09-27:** tras enviar el formulario aparece un único `<div data-testid="login-error">`. Con email no registrado y con contraseña incorrecta muestra `Email o contraseña incorrectos`; con email vacío, `El email es obligatorio`; con contraseña vacía, `La contraseña es obligatoria`. El mensaje no tiene `role="alert"`. | Conservamos el test id porque el mensaje no tiene rol ni etiqueta accesible propios: el único `role="alert"` de la página es el anunciador de rutas de Next.js, que queda vacío. Los textos son **observados, no exigidos**: `P3` sigue abierta en `docs/casos-login-v2.md`. Depende de que el equipo mantenga `login-error`. |
 
-La última fila es opcional. Complétala solo si encuentras un caso real donde el elemento no tiene una
-señal que la persona perciba —por ejemplo, un contenedor sin nombre visible— o donde el equipo mantiene
-un atributo para pruebas. **No inventes un caso ni una ejecución para llenar la fila.**
+La última fila importa tanto como las otras tres: **refactorizar no es reemplazar todo el CSS.**
+Cuando el elemento no tiene una señal que la persona perciba —un contenedor, un bloque que agrupa—
+conservar CSS o `getByTestId` es la decisión correcta, y hay que poder explicar por qué.
 
 ## ESCRIBES · Elemento nuevo pedido a la IA, verificado ejecutando
 
@@ -168,33 +145,70 @@ una línea de ese archivo.
 
 ## Cierre de S4
 
-- [ ] Las tres filas obligatorias tienen su CSS y su locator de Playwright al lado.
-- [ ] Cada locator fue **ejecutado**, no solo leído.
-- [ ] Si encontré un caso real para conservar CSS o test id, completé la fila opcional con su razón.
+- [ ] Cada fila tiene su CSS y su locator semántico al lado.
+- [ ] Email, contraseña y botón conservan la evidencia histórica de C4.
+- [ ] `login-welcome` fue ejecutado y tiene un resultado real registrado antes de impartir C10.
+- [ ] Hay al menos un caso donde decidí **conservar** CSS o test id, con su razón.
+
+## Evidencia preparada para C10
+
+La comprobación ejecutable está en `tests/comprobar-locators.spec.ts` y se lanza con:
+
+```bash
+npm test -- tests/comprobar-locators.spec.ts
+```
+
+El primer test vuelve a comprobar email, contraseña y botón, que ya tienen evidencia histórica de
+C4. El segundo realiza el login y comprueba por separado el locator `login-welcome` y el texto
+`¡Hola, Ana!`; esa ampliación todavía no tiene evidencia de ejecución válida.
+
+**Estado de la verificación del 2026-09-27:** la comprobación HTTP confirmó las etiquetas `Email` y
+`Contraseña`, el botón `Iniciar sesión`, los `data-testid` del formulario y la implementación de
+`login-welcome`. La API de login respondió `200` con la persona `Ana García`, por lo que el código
+servido formaría el saludo `¡Hola, Ana!`. La ejecución Playwright no llegó a abrir la página:
+Chromium terminó durante el arranque con `Critical error: required built-in appearance
+SystemAppearance not found`. Este documento no convierte ese fallo de infraestructura en un fallo
+del producto ni registra una salida verde inexistente. **El runtime Playwright sigue siendo un gate
+previo a C10:** debe ejecutarse en un entorno donde Chromium pueda iniciar.
+
+Esta comprobación **no sustituye** el test E2E de C10. Aquí validamos previamente los locators y el
+resultado observable. En C10 construiremos el test trazable que representa el caso priorizado `L1`
+y revisaremos qué demuestra.
 
 ## Pregunta abierta para S5
 
 Ya tienes locators que encuentran el elemento correcto. ¿Qué falta para que eso sea una **prueba**?
 Encontrar un elemento no es todavía comprobar que la aplicación hace lo que promete.
 
-## Preparación para S5
+---
 
-Completa esta sección siguiendo `Tarea-S5-Consigna.md`:
+## Registro · opción rechazada — comprobada ejecutando
 
-1. ¿Qué línea abre la página?
-   **`await page.goto(LOGIN_URL);`** — es la línea 6. Antes se definió la constante
-   `LOGIN_URL` con la dirección `'https://playground.calidadsinhumo.com/login'`.
+- **Página:** `https://playground.calidadsinhumo.com/registro` · evidencia: `evidence/registro-form.html`
+- **Selector evaluado:** `getByText('Crear cuenta')`, para el botón de envío.
+- **Qué pasó al ejecutarlo:**
 
-2. ¿Qué tres locators se crean?
-   - `email` — `page.getByLabel('Email')`
-   - `password` — `page.getByLabel('Contraseña')`
-   - `submit` — `page.getByRole('button', { name: 'Iniciar sesión' })`
+  ```text
+  strict mode violation: getByText('Crear cuenta') resolved to 3 elements:
+    1) <a href="/registro" data-testid="nav-registro">Crear cuenta de práctica</a>
+    2) <h1 data-testid="register-title">Crear cuenta</h1>
+    3) <button type="submit" data-testid="register-submit">Crear cuenta</button>
+  ```
 
-3. ¿Qué se comprueba primero: cantidad o visibilidad?
-   **Cantidad** — las tres llamadas a `toHaveCount(1)` aparecen antes de las tres
-   llamadas a `toBeVisible()`.
+- **Por qué se rechaza:** el texto está en el menú, en el título y en el botón. `getByText` no
+  distingue qué es cada cosa; `getByRole('button', { name: 'Crear cuenta' })` encuentra exactamente 1.
+- **Comprobado el:** 2026-08-18 y 2026-10-02.
+- **La regla:** *cuando un texto se repite en la página, el rol es lo que desambigua.*
 
-4. ¿Qué palabra se repite antes de las acciones y comprobaciones?
-   **`await`** — aparece delante de `page.goto(…)` y delante de cada `expect(…)`.
+> No sale de que la IA se haya equivocado: es una propiedad de la página, y estaría ahí aunque nadie
+> usara IA.
 
-> Creo que `await` sirve para **esperar a que cada acción termine antes de pasar a la siguiente línea**. En S5 lo comprobaremos ejecutando el código.
+## Registro · locators `SIN FILA` del agente
+
+Los que el agente propuso con un tipo que tu mapa todavía no cubre. Los decides tú, en el gate.
+
+| Locator propuesto | Lo agrego al criterio / lo rechazo | Razón |
+|---|---|---|
+| `getByLabel('Nombre completo')` | lo agrego | mismo tipo que `getByLabel('Email')` y `getByLabel('Contraseña')` del login: `<label for="name">` en la línea 7 del HTML. Deja de ser válido si cambia la etiqueta accesible |
+| `getByLabel('Edad')` | lo agrego | `<label for="age">` en la línea 19 del HTML. La prueba de control lo midió: pegado en el login, rojo con `element(s) not found` (2026-10-28) |
+| `getByRole('button', { name: 'Crear cuenta' })` | lo agrego | es la opción que esta misma sección deja en pie: `getByText('Crear cuenta')` encuentra 3 elementos y el rol desambigua |

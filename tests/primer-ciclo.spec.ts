@@ -1,4 +1,4 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test('muestra el panel QA', async ({ page }) => {
   await page.setContent(`
@@ -11,7 +11,7 @@ test('muestra el panel QA', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Panel QA' })).toBeVisible();
 });
 
-test('muestra el texto del párrafo', async ({ page }) => {
+test('muestra el texto de verificación', async ({ page }) => {
   await page.setContent(`
     <main>
       <h1>Panel QA</h1>
@@ -19,5 +19,5 @@ test('muestra el texto del párrafo', async ({ page }) => {
     </main>
   `);
 
-  await expect(page.locator('p')).toBeVisible();
+  await expect(page.getByText('Tu proyecto ya puede ejecutar una verificación reproducible.')).toBeVisible();
 });

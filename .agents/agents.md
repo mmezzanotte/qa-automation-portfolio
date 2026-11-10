@@ -1,69 +1,187 @@
-# Agents — QA Automation Portfolio
+# Registro de roles y capacidades — qa-automation-portfolio
 
-Configuración y catálogo de agentes disponibles para este proyecto.
-
----
-
-## Agentes configurados
-
-### Agente de proyecto (IDE / CLI)
-
-Rol principal en las sesiones de trabajo del portfolio.
-
-**Permisos:**
-- ✅ Leer archivos del repositorio
-- ✅ Proponer cambios
-- ✅ Ejecutar comandos de diagnóstico (lectura)
-- ❌ Modificar archivos sin aprobación explícita
-- ❌ Ejecutar comandos que alteren el estado del repositorio sin aprobación
-
-**Instrucciones base:**
-Ver `.agents/rules/qa-reglas.md`
+> ## Este archivo llega dado. Hoy solo necesitas saber que existe.
+>
+> **Qué es:** el índice del repositorio para cualquier IA que trabaje acá adentro. Qué es este
+> proyecto, dónde está la verdad y qué capacidades existen.
+>
+> **Por qué llega escrito:** hoy —en C7— el trabajo es la skill. Este archivo está acá para que la
+> carpeta `.agents/` esté completa desde el primer día y para que la skill tenga dónde registrarse.
+> **En C8 lo vas a entender entero y lo vas a hacer tuyo:** completar el contexto, comprobar que los
+> archivos de la sección 2 existen de verdad en tu `docs/` y agregar lo que falte.
+>
+> **Este archivo no ejecuta nada.** Es un registro. Que exista una carpeta `.agents/` no convierte al
+> repositorio en un agente.
 
 ---
 
-## Skills disponibles
+## 1. Qué es este repositorio
 
-| Skill | Carpeta | Cuándo usarla |
+| | |
+|---|---|
+| **Proyecto** | `qa-automation-portfolio` — el repositorio que crece durante toda la ruta |
+| **Sistema bajo prueba** | Academia sin Humo · `https://playground.calidadsinhumo.com` |
+| **Especificación** | `https://playground.calidadsinhumo.com/documentacion` |
+| **Estado hoy** | documentación viva + reglas cosechadas + dos skills. Todavía **no hay tests**: el primero se escribe en C10 |
+| **Responsable de las decisiones** | la QA dueña del repositorio. Ninguna capacidad de acá firma nada |
+
+---
+
+## 2. Dónde está la verdad
+
+Ningún pedido vuelve a pegar este contenido en el chat. Se señala el archivo.
+
+| Archivo | Qué contiene | Nació en |
 |---|---|---|
-| `priorizar-automatizacion` | `.agents/skills/priorizar-automatizacion/` | Cuando el humano entrega una lista de candidatos de prueba y quiere saber cuáles automatizar primero |
+| `docs/prompt-template.md` | la estructura base para pedirle algo a la IA | C1 |
+| `docs/mapa-selectores.md` | los elementos del login localizados y comprobados en el DOM real | C3 · C4 |
+| `docs/js-esencial.md` | lo mínimo de JavaScript para leer un test | C5 |
+| `docs/contrato-api.md` | contrato dado + discrepancias observadas + incógnitas + la lista cruda de candidatos | C6 |
+| `docs/estrategia-automatizacion.md` | el backlog priorizado y firmado: fuente, score, decisión y razón | C7 |
+| `docs/HU-login.md` · `docs/HU-registro.md` | las historias de usuario del login y del registro, con sus criterios y requerimientos | C8 |
+| `docs/casos-login.md` | los casos del login, cada uno con su fuente, y las preguntas abiertas | C8 |
+| `.agents/rules/criterio-qa.md` | las reglas estables, siempre activas | C7 (semilla) · C8 (cosechado) |
 
 ---
 
-## Cómo activar una skill
+## 3. Capacidades registradas
 
-El humano puede activar una skill con una instrucción como:
+### `priorizar-automatizacion` · skill
 
-```text
-Usa la skill priorizar-automatizacion con estos candidatos: [lista]
-```
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/priorizar-automatizacion/SKILL.md` |
+| **Qué hace** | puntúa candidatos a automatización contra cuatro criterios y devuelve la tabla con total y zona |
+| **Qué NO hace** | no decide, no escribe la razón, no agrega candidatos, no inventa, no escribe tests |
+| **Qué necesita de entrada** | una lista de candidatos **con fuente** + el contexto de equipo de `docs/estrategia-automatizacion.md` §1 + la escala de su §2 |
+| **Dónde deja la salida** | en la conversación, para que la QA la pegue y la **firme** en `docs/estrategia-automatizacion.md` §3 |
+| **Cuándo pide decisión humana** | siempre que un puntaje dependa de un dato que no está en el repositorio |
+| **Nació en** | C7, empaquetando un procedimiento ejecutado a mano tres veces en la misma clase |
 
-O el agente puede sugerirla cuando detecta que el contexto lo amerita, pero
-**no la activa sin que el humano lo confirme**.
+### `derivar-casos-de-hu` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/derivar-casos-de-hu/SKILL.md` |
+| **Qué hace** | recorre una historia de usuario por capas —contexto, reglas, preguntas, riesgos— y deriva casos de prueba ordenados por riesgo, cada uno con criterio, requerimiento y fragmento textual |
+| **Qué NO hace** | no firma, no ejecuta, no escribe tests y no modifica archivos. El detalle vive en la sección 4 del `SKILL.md` |
+| **Qué necesita de entrada** | una historia con criterios de aceptación identificados; los requerimientos y las notas del equipo, si existen |
+| **Dónde deja la salida** | en la conversación. La QA la revisa con los gates y la guarda en `docs/casos-<funcionalidad>.md` |
+| **Cuándo pide decisión humana** | ver la sección 5 del `SKILL.md` |
+| **Reglas que aplica** | `.agents/rules/criterio-qa.md`, en especial la sección 5: un caso sin fuente no es un caso |
+| **Nació en** | C8, empaquetando cómo se dirigió a la IA capa por capa sobre el login: los cinco pedidos son los pasos y los gates son los límites |
+
+### `diagnosticar-fallo-playwright` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/diagnosticar-fallo-playwright/SKILL.md` |
+| **Qué hace** | lee un rojo o un verde sospechoso de un test de Playwright, lo ubica en una de cuatro lecturas, nombra la causa con la línea de la salida que la prueba y propone el cambio mínimo |
+| **Qué NO hace** | no agrega esperas fijas, no sube timeouts, no arregla hasta verde, no copia el `Received` al `Expected` sin fuente, no decide si el producto está bien |
+| **Qué necesita de entrada** | el archivo del test + la salida completa del runner + qué tenía que pasar según la fuente + `.agents/rules/criterio-qa.md` §6 |
+| **Dónde deja la salida** | en la conversación, en seis líneas; el cambio lo aplica y lo firma la QA |
+| **Cuándo pide decisión humana** | cuando la fuente no fija el texto esperado, cuando un test flaky no se reproduce, cuando la causa está en el producto |
+| **Nació en** | C11, empaquetando las cuatro lecturas hechas a mano en C10 y C11 sobre `tests/e2e/login.spec.ts` |
+
+### `crear-fixture-playwright` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/crear-fixture-playwright/SKILL.md` |
+| **Qué hace** | lee tests reales, identifica preparación común y propone una fixture antes de editar |
+| **Qué NO hace** | no cambia casos, REQ, títulos, datos ni aserciones; no duplica fixtures ni ejecuta tests sin petición |
+| **Qué necesita de entrada** | tests, Page Objects y fixtures utilizados, instrucciones del proyecto y alcance |
+| **Dónde deja la salida** | en la conversación: preparación encontrada y plan; tras aprobación, diff y comprobaciones |
+| **Cuándo pide decisión humana** | antes de editar, ante entradas faltantes o cambios de alcance |
+| **Nació en** | C13, después de extraer a mano la preparación común del login |
+
+### `generar-pom` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/generar-pom/SKILL.md` |
+| **Qué hace** | completa un page object desde el HTML real, el test y su fixture; lo verifica con una rúbrica de cuatro criterios y ejecutando el test; deja la evidencia en `reports/pom-agent-report.md` |
+| **Qué NO hace** | no toca el test, la fixture ni otros archivos; no borra lo que el page object ya exponía; no inventa la ruta; no escribe `ACEPTADO` |
+| **Nació en** | C14. La primera capacidad del repositorio que escribe un archivo de código |
+
+### `@pom-agent` · agente
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/workflows/pom-agent.md`, que se invoca como `/pom-agent` |
+| **Qué hace** | usa `generar-pom`, lee la evidencia y **decide solo** si para, corrige o escala, hasta 3 intentos |
+| **Qué entrega** | `CANDIDATO` o `ESCALADO`. Nunca `ACEPTADO`: esa decisión es de la QA |
+| **Nació en** | C14. El primer agente del repositorio |
+
+### `automatizar-caso` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/automatizar-caso/SKILL.md` |
+| **Qué hace** | toma una fila firmada `AUTOMATIZAR YA` de `docs/estrategia-automatizacion.md` §3 y la convierte en un test E2E con su ítem y su REQ citados, usando los Page Objects y las fixtures que ya existen; lo ejecuta y clasifica cada fallo |
+| **Qué NO hace** | no decide qué se automatiza; no toca filas sin decisión y razón; no agrega locators al Page Object; no cambia un resultado esperado para que pase; no marca `test.fail()`; no toca el backlog |
+| **Nació en** | material extra, después de C14. Es la continuación de `priorizar-automatizacion` |
+
+### `reportar-bug` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/reportar-bug/SKILL.md` |
+| **Qué hace** | redacta reportes de bug desde evidencia copiada y una fuente, y separa los bugs de los hallazgos sin fuente |
+| **Qué NO hace** | no inventa datos, no decide la severidad, no afirma la causa, no crea tickets |
+| **Nació en** | C15. La séptima skill del repositorio |
+
+### `generar-tests-api` · skill
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/skills/generar-tests-api/SKILL.md` |
+| **Qué hace** | convierte filas de `docs/contrato-api.md` en tests de API con su REQ citado, los ejecuta y clasifica cada fallo |
+| **Qué NO hace** | no inventa rutas, status ni campos; no corrige un fallo que no sea del test; no marca `test.fail()`; no toca el contrato |
+| **Nació en** | C16. La octava skill del repositorio |
+
+### `@api-agent` · agente
+
+| | |
+|---|---|
+| **Dónde vive** | `.agents/workflows/api-agent.md`, que se invoca como `/api-agent` |
+| **Qué hace** | usa `generar-tests-api`: propone un plan trazable, espera `PLAN APROBADO`, escribe, ejecuta, clasifica y decide si para, corrige o escala, hasta 3 intentos |
+| **Qué entrega** | `CANDIDATO`, `CANDIDATO CON HALLAZGOS` o `ESCALADO`. Nunca `ACEPTADO` |
+| **Nació en** | C16. El segundo agente del repositorio |
 
 ---
 
-## Cómo agregar una skill nueva
+## 4. Cómo crece este archivo
 
-1. Crear una carpeta en `.agents/skills/<nombre-skill>/`
-2. Agregar un archivo `SKILL.md` con:
-   - Frontmatter YAML: `name` y `description`
-   - Cuándo se activa
-   - Entradas esperadas
-   - Pasos del procedimiento
-   - Límites y salida esperada
-3. Registrar la skill en este archivo (`agents.md`)
+Se agregan filas; no se borran las anteriores. Lo previsto en la ruta:
+
+| Clase | Qué se registra |
+|---|---|
+| C8 | la segunda skill del repositorio: `derivar-casos-de-hu`, recibida terminada y recorrida línea por línea · y las reglas cosechadas en `criterio-qa.md` |
+| C9 | el workflow `generar-y-juzgar` y la skill `revisar-con-rubrica` |
+| C11 | la skill `diagnosticar-fallo-playwright` |
+| C14 | el agente `pom-agent` |
+| C16 | el agente `api-agent` |
+| C17 | la capacidad que produce el workflow de integración continua |
+
+Una capacidad entra al registro solo si **se va a usar en tres o más momentos o en el trabajo
+cotidiano**. Si se usa una vez, fue un pedido puntual y no necesita archivo.
 
 ---
 
-## Portabilidad
+## 5. Lo que este registro no cubre
 
-Este repositorio sigue el estándar de agentes portables:
+- **No hay agentes todavía.** Un agente es un modelo con herramientas, un ciclo de trabajo y una
+  condición de parada. Lo que hay hoy son reglas y dos skills: instrucciones, no autonomía.
+- **Desde C14 hay un agente, y uno solo:** `@pom-agent`. Lo de arriba era verdad hasta C13. Las
+  demás capacidades siguen siendo instrucciones, y está bien: no se convierte en agente lo que no
+  necesita herramientas ni un ciclo.
+- **Desde C16 son dos:** `@pom-agent` y `@api-agent`. Los dos entregan candidatos; la aceptación
+  sigue siendo de la QA.
+- **No hay subagentes.** Se usan cuando el trabajo es divisible de verdad o cuando hacen falta
+  miradas independientes que después alguien reconcilia. Todavía no es el caso.
+- **El criterio no está acá.** Se puede escribir el procedimiento; no se puede escribir la firma.
 
-- Las instrucciones del agente viven en el repositorio, no en la herramienta.
-- Cualquier agente compatible con este estándar puede leer `.agents/` y operar
-  con las mismas reglas.
-- Si la herramienta no soporta `.agents/`, el humano pega las reglas manualmente
-  al inicio de la conversación.
+---
 
-Ver `docs/guia-portabilidad-ia.md` para más detalles.
+*Semilla entregada en C7 · se completa en C8 · qa-automation-portfolio · Ruta QA Automation con IA*

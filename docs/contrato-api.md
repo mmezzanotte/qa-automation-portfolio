@@ -10,38 +10,42 @@
 **Base URL:** `https://playground.calidadsinhumo.com`
 **Fuente del documento:** `https://playground.calidadsinhumo.com/documentacion` — secciones 3, 5 y 6
 **Entregado por:** equipo de producto de Academia sin Humo
-**Copiado a este repositorio el:**
+
 
 ---
 
 ## Cómo se lee este archivo
 
-| Sección | Quién la escribe | Qué contiene |
-|---|---|---|
-| 0 a 3 | **el producto** | lo que la API **promete**. Llega escrito. No lo edites. |
-| **4 · Discrepancias observadas** | **tú, QA** | el registro mínimo de los cinco casos y, cuando no coinciden, las dos versiones del hallazgo |
-| **5 · Lo que el contrato no define** | **tú, QA** | los huecos: casos que ocurren y que este documento no cubre |
-| 6 a 9 | procedimiento | cómo organizarlo con IA, el gate, qué hacer si no te dan contrato, adónde va |
+
+| Sección                              | Quién la escribe | Qué contiene                                                                                 |
+| ------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------- |
+| 0 a 3                                | **el producto**  | lo que la API **promete**. Llega escrito. No lo edites.                                      |
+| **4 · Discrepancias observadas**     | **tú, QA**       | el registro mínimo de los cinco casos y, cuando no coinciden, las dos versiones del hallazgo |
+| **5 · Lo que el contrato no define** | **tú, QA**       | los huecos: casos que ocurren y que este documento no cubre                                  |
+| 6 a 9                                | procedimiento    | cómo organizarlo con IA, el gate, qué hacer si no te dan contrato, adónde va                 |
+
 
 **Las tres advertencias que hay que decir en voz alta:**
 
 1. Todo lo que dicen las secciones 0 a 3 es una **promesa**. Nadie verificó todavía que el producto
-   la cumpla.
+ la cumpla.
 2. Un contrato dado **no prueba nada**. Prueba que alguien escribió lo que debería pasar.
 3. La única forma de saber si el producto cumple es **ejecutar**. Eso es lo tuyo, y por eso las dos
-   únicas secciones que escribes son la 4 y la 5.
+ únicas secciones que escribes son la 4 y la 5.
 
 ---
 
 ## 0. Superficie declarada de la API
 
-| Método | Ruta | De dónde salió | Para qué |
-|---|---|---|---|
-| POST | `/api/login` | documentación · sección 2 | iniciar sesión; devuelve la cookie `ash_session` |
-| POST | `/api/enroll` | documentación · REQ-A01 | inscribirse a un curso |
-| GET | `/api/courses` | **observación en Network** — REQ-C01 define qué muestra el catálogo, no el endpoint que lo alimenta | listar cursos con cupos y prerequisitos |
-| GET | `/api/auth/me` | **observación en Network** — no está documentado | quién es la sesión actual |
-| GET | `/api/progress` | **observación en Network** — no está documentado | inscripciones y progreso |
+
+| Método | Ruta            | De dónde salió                                                                                      | Para qué                                         |
+| ------ | --------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| POST   | `/api/login`    | documentación · sección 2                                                                           | iniciar sesión; devuelve la cookie `ash_session` |
+| POST   | `/api/enroll`   | documentación · REQ-A01                                                                             | inscribirse a un curso                           |
+| GET    | `/api/courses`  | **observación en Network** — REQ-C01 define qué muestra el catálogo, no el endpoint que lo alimenta | listar cursos con cupos y prerequisitos          |
+| GET    | `/api/auth/me`  | **observación en Network** — no está documentado                                                    | quién es la sesión actual                        |
+| GET    | `/api/progress` | **observación en Network** — no está documentado                                                    | inscripciones y progreso                         |
+
 
 > **Ya hay una lección acá.** De los cinco endpoints que existen, **la documentación nombra dos**.
 > Los otros tres aparecieron mirando la pestaña Network mientras alguien usaba la aplicación. Un
@@ -61,22 +65,26 @@ completado. Textual del documento: *"Las mismas reglas que la UI"*.
 
 **Las cinco respuestas esperadas (REQ-A03):**
 
-| # | Caso | Body que se envía | Status que promete la spec | Respuesta documentada | REQ |
-|---|---|---|---|---|---|
-| 1 | Inscripción exitosa | `{"courseId":"fundamentos"}` | `200` | `status: "inscrito"` | REQ-A03 |
-| 2 | Falta el campo obligatorio | `{}` | `400` | `El campo courseId es obligatorio` | REQ-A03 · REQ-A01 |
-| 3 | Curso que no existe | `{"courseId":"no-existe"}` | `404` | `Curso no encontrado` | REQ-A03 |
-| 4 | Sin cupos | `{"courseId":"api-testing"}` | `200` | `status: "lista-espera"` | REQ-A03 · REQ-C02 |
-| 5 | Prerequisito no completado | `{"courseId":"playwright-cero"}` | `403` | rechazo por prerequisito pendiente | REQ-A03 · REQ-C03 · REQ-C06 |
+
+| #   | Caso                       | Body que se envía                | Status que promete la spec | Respuesta documentada              | REQ                         |
+| --- | -------------------------- | -------------------------------- | -------------------------- | ---------------------------------- | --------------------------- |
+| 1   | Inscripción exitosa        | `{"courseId":"fundamentos"}`     | `200`                      | `status: "inscrito"`               | REQ-A03                     |
+| 2   | Falta el campo obligatorio | `{}`                             | `400`                      | `El campo courseId es obligatorio` | REQ-A03 · REQ-A01           |
+| 3   | Curso que no existe        | `{"courseId":"no-existe"}`       | `404`                      | `Curso no encontrado`              | REQ-A03                     |
+| 4   | Sin cupos                  | `{"courseId":"api-testing"}`     | `200`                      | `status: "lista-espera"`           | REQ-A03 · REQ-C02           |
+| 5   | Prerequisito no completado | `{"courseId":"playwright-cero"}` | `403`                      | rechazo por prerequisito pendiente | REQ-A03 · REQ-C03 · REQ-C06 |
+
 
 **Tabla de decisión de REQ-C02** — así llega escrita en la documentación:
 
-| Prerequisito completado | Cupo disponible | Resultado esperado |
-|---|---|---|
-| Sí | Sí | Inscrito |
-| Sí | No | Lista de espera |
-| No | Sí | Rechazado (prerequisito pendiente) |
-| No | No | Rechazado |
+
+| Prerequisito completado | Cupo disponible | Resultado esperado                 |
+| ----------------------- | --------------- | ---------------------------------- |
+| Sí                      | Sí              | Inscrito                           |
+| Sí                      | No              | Lista de espera                    |
+| No                      | Sí              | Rechazado (prerequisito pendiente) |
+| No                      | No              | Rechazado                          |
+
 
 **Regla que conecta las dos capas (REQ-C06):** *"La API de inscripción (`POST /api/enroll`) debe
 aplicar las mismas reglas de validación que la UI. Un curso con prerequisito pendiente debe ser
@@ -104,23 +112,25 @@ Fundamentos de Testing          ← sin prerequisito
 
 ## 2. POST /api/login
 
-| | |
-|---|---|
-| Qué envía | `{ "email": "...", "password": "..." }` |
-| Status esperado | `200` con credenciales válidas · `401` con credenciales inválidas · `400` si falta un campo |
-| REQ que lo respalda | REQ-L01 (ambos campos obligatorios) · REQ-L02 (credenciales inválidas → error) |
-| Qué devuelve | mensaje de éxito y los datos del usuario |
-| Cómo mantiene la sesión | header `set-cookie` con `ash_session` |
+
+|                         |                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| Qué envía               | `{ "email": "...", "password": "..." }`                                                     |
+| Status esperado         | `200` con credenciales válidas · `401` con credenciales inválidas · `400` si falta un campo |
+| REQ que lo respalda     | REQ-L01 (ambos campos obligatorios) · REQ-L02 (credenciales inválidas → error)              |
+| Qué devuelve            | mensaje de éxito y los datos del usuario                                                    |
+| Cómo mantiene la sesión | header `set-cookie` con `ash_session`                                                       |
+
 
 **Reglas de negocio que le aplican:**
 
 - **REQ-L01** — El login requiere email y contraseña. Ambos son obligatorios.
 - **REQ-L02** — Las credenciales se validan contra los usuarios registrados. Un email no registrado o
-  una contraseña incorrecta muestran un mensaje de error.
+una contraseña incorrecta muestran un mensaje de error.
 - **REQ-L03** — *Rate limiting*: después de 5 intentos fallidos consecutivos, la cuenta se bloquea por
-  30 segundos.
+30 segundos.
 - **REQ-L04** — Tras un login exitoso, el sistema muestra un mensaje de bienvenida con el nombre del
-  usuario.
+usuario.
 
 > **Cuidado en clase y en la tarea:** REQ-L03 es una regla del producto, no un error. Si te bloqueas,
 > el sistema está funcionando como está escrito.
@@ -129,13 +139,15 @@ Fundamentos de Testing          ← sin prerequisito
 
 ## 3. GET /api/courses
 
-| | |
-|---|---|
-| Status esperado | `200` |
-| REQ que lo respalda | REQ-C01 define el **contenido** del catálogo; el endpoint no está documentado aparte |
-| Qué devuelve | `{"courses":[...],"total":N}` |
+
+|                      |                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| Status esperado      | `200`                                                                                                  |
+| REQ que lo respalda  | REQ-C01 define el **contenido** del catálogo; el endpoint no está documentado aparte                   |
+| Qué devuelve         | `{"courses":[...],"total":N}`                                                                          |
 | Campos de cada curso | `id`, `title`, `description`, `level`, `duration`, `prerequisiteId`, `maxStudents`, `enrolled`, `icon` |
-| ¿Necesita sesión? | **el documento no lo dice** |
+| ¿Necesita sesión?    | **el documento no lo dice**                                                                            |
+
 
 **Regla asociada (REQ-C04):** *"Al inscribirse exitosamente, el número de cupos disponibles debe
 reducirse en 1."*
@@ -151,26 +163,27 @@ reducirse en 1."*
 > corrige el documento para que cierre, y no se decide quién tiene razón. Esa decisión no es de QA.
 > **La detección sí.**
 
-**Verificación:** ejecutada por `Maria` el `2026-09-23` con `curl`.
-Casos ejecutados: `5` de 5.
+**Verificación:** ejecutada por `________` el `________` con `curl / DevTools / Postman`.
+Casos ejecutados: `___` de 5.
 
 **Registro mínimo de ejecución:** marca cada caso que ejecutes. Si coincide, no copies otra vez la
 regla completa; registra el caso, la fecha y el resultado.
 
-| Caso | Fecha | Resultado |
-|---|---|---|
-| 1 — Inscripción exitosa `{"courseId":"fundamentos"}` | 2026-09-23 | ⚠️ discrepancia — ver tabla abajo |
-| 2 — Falta campo `{}` | 2026-09-23 | coincide — `400` con mensaje esperado |
-| 3 — Curso inexistente `{"courseId":"no-existe"}` | 2026-09-23 | coincide — `404` con mensaje esperado |
-| 4 — Sin cupos `{"courseId":"api-testing"}` | 2026-09-23 | ⚠️ discrepancia — ver tabla abajo |
-| 5 — Prerequisito pendiente `{"courseId":"playwright-cero"}` | 2026-09-23 | coincide — `403` recibido |
 
-> **[PENDIENTE]** Completar las columnas «Lo que respondió el producto» con el body textual real de tu ejecución con curl. Los casos 2, 3 y 5 ya tienen el resultado; los casos 1 y 4 necesitan el body completo de la respuesta.
+| Caso | Fecha | Resultado               |
+| ---- | ----- | ----------------------- |
+| 1    |       | coincide / discrepancia |
+| 2    |       | coincide / discrepancia |
+| 3    |       | coincide / discrepancia |
+| 4    |       | coincide / discrepancia |
+| 5    |       | coincide / discrepancia |
 
-| # | Endpoint y dato | Lo que dice el contrato (REQ) | Lo que respondió el producto | Cómo lo verifiqué | Fecha |
-|---|---|---|---|---|---|
-| 1 | `POST /api/enroll` con `{"courseId":"fundamentos"}` (requiere sesión activa) | `200` con `status: "inscrito"` — REQ-A03 | `401` Unauthorized — sin cookie de sesión activa el endpoint rechaza la request | curl sin header `Cookie`, 2026-09-23 | 2026-09-23 |
-| 4 | `POST /api/enroll` con `{"courseId":"api-testing"}` (sin cupos) | `200` con `status: "lista-espera"` — REQ-A03 · REQ-C02 · REQ-C05 | `200` — `{"courseId":"api-testing","status":"lista-espera","displayStatus":"inscrito","progress":0,"certificates":0,"message":"Sin cupos para \"API Testing con Playwright\". Agregado a lista de espera.","spotsLeft":0}` — ⚠️ **Discrepancia:** `displayStatus` dice `"inscrito"` aunque el status es `lista-espera`. REQ-C05 exige que el badge muestre `"Lista de espera"`, no `"Inscrito"`. | curl.exe con cookie de sesión activa, 2026-09-23 | 2026-09-23 |
+
+
+| #   | Endpoint y dato | Lo que dice el contrato (REQ) | Lo que respondió el producto | Cómo lo verifiqué | Fecha |
+| --- | --------------- | ----------------------------- | ---------------------------- | ----------------- | ----- |
+|     |                 |                               |                              |                   |       |
+
 
 **Formato de una fila bien escrita** — es un ejemplo, no es tu hallazgo:
 
@@ -194,11 +207,9 @@ citada con número · fecha.** Ninguna de las cinco es opinión.
 > **Discrepancia** = la spec dice una cosa y el producto hace otra.
 > **Incógnita** = la spec no dice nada y tú observaste algo.
 
-- El documento no dice si `POST /api/enroll` requiere sesión activa (`ash_session` cookie). La ejecución del caso 1 sin sesión devuelve `401`, lo que sugiere que sí la requiere, pero el contrato no lo especifica en REQ-A01 ni en REQ-A03.
-- El documento no dice qué devuelve `POST /api/enroll` si el body llega con JSON malformado (ej: `{courseId: fundamentos}` sin comillas). REQ-A01 solo define el campo obligatorio, no el formato estricto del JSON.
-- El documento no dice qué responde `GET /api/enroll` (método incorrecto). REQ-A03 documenta solo el método POST. Un `GET` a ese endpoint no está cubierto.
-- Los endpoints `GET /api/auth/me` y `GET /api/progress` aparecen en la tabla de la sección 0 como observados en Network, pero no tienen REQ asociado. No se sabe qué status devuelven, qué campos retornan ni si requieren sesión.
-- El documento no especifica si `courseId` es case-sensitive. `{"courseId":"Fundamentos"}` vs `{"courseId":"fundamentos"}` podría dar resultados distintos y no hay REQ que lo defina.
+- 
+- 
+- 
 
 Si te cuesta arrancar, estas preguntas suelen destapar algo:
 
@@ -206,6 +217,14 @@ Si te cuesta arrancar, estas preguntas suelen destapar algo:
 - ¿Qué debería responder el endpoint ante un método que no acepta?
 - ¿Qué debería responder si el body llega mal formado?
 - ¿Qué prometen `/api/auth/me` y `/api/progress`, que existen y no están documentados?
+
+**Observaciones del 2026-11-02**, de la corrida del repositorio de demostración:
+
+- Sin sesión, `POST /api/enroll` responde `200` y entrega una cookie `ash_session` nueva. El contrato no define si necesita sesión.
+- Repetir la inscripción con la misma sesión devuelve `409` con `{"error":"Ya estás inscrito en este curso"}`. No está documentado.
+- Un pedido sin cuerpo devuelve `500` con el body vacío. El contrato no define el body mal formado.
+- `GET /api/enroll` devuelve `405`. El contrato no define los métodos que no acepta.
+- El contrato se contradice: el caso 4 promete lista de espera para `api-testing`, y la tabla de REQ-C02 dice rechazado si el prerequisito no está completado. No lo decide QA.
 
 ---
 
@@ -263,14 +282,16 @@ Va a pasar, y más seguido de lo que te gustaría. No hay documentación, o la h
 te quedas sin trabajo: cambias de fuente.** El procedimiento es este, y es el mismo en cualquier
 producto.
 
-| Paso | Qué haces | Qué produce |
-|---|---|---|
-| 1 | Abre DevTools → Network → filtro Fetch/XHR y **usa la aplicación como un usuario** | la lista de endpoints que existen de verdad |
-| 2 | Anota método, ruta y para qué sirve cada uno | la sección 0 escrita por observación |
-| 3 | Ejecuta el camino feliz de cada endpoint y guarda status y body textuales | el comportamiento base |
-| 4 | Repite cambiando **un** dato por vez: falta un campo, dato inexistente, método distinto, body roto | los bordes |
-| 5 | Escribe cada resultado como **observación con fecha**, nunca como regla | un registro de observaciones |
-| 6 | Lleva las preguntas que quedaron abiertas a quien pueda responderlas | las definiciones que faltan |
+
+| Paso | Qué haces                                                                                          | Qué produce                                 |
+| ---- | -------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1    | Abre DevTools → Network → filtro Fetch/XHR y **usa la aplicación como un usuario**                 | la lista de endpoints que existen de verdad |
+| 2    | Anota método, ruta y para qué sirve cada uno                                                       | la sección 0 escrita por observación        |
+| 3    | Ejecuta el camino feliz de cada endpoint y guarda status y body textuales                          | el comportamiento base                      |
+| 4    | Repite cambiando **un** dato por vez: falta un campo, dato inexistente, método distinto, body roto | los bordes                                  |
+| 5    | Escribe cada resultado como **observación con fecha**, nunca como regla                            | un registro de observaciones                |
+| 6    | Lleva las preguntas que quedaron abiertas a quien pueda responderlas                               | las definiciones que faltan                 |
+
 
 **La regla que no se puede saltear:** lo que observaste es una **muestra**, no una regla. Que hoy
 haya devuelto `400` no significa que la regla sea `400`: significa que hoy devolvió `400`. Por eso
@@ -285,32 +306,10 @@ producto.
 ## 9. Adónde va este archivo
 
 - **C7** lo lee para decidir qué vale la pena automatizar. Las filas de la sección 4 son candidatas
-  fuertes: ya tienen endpoint, dato y resultado esperado.
+fuertes: ya tienen endpoint, dato y resultado esperado.
 - **C15** lo abre para escribir los tests de API: cada caso con fuente se convierte en un test.
 - **C16** se lo entrega a un agente que genera tests de API. El agente **no puede inventar
-  endpoints**: solo conoce los que están acá.
+endpoints**: solo conoce los que están acá.
 - Un caso que hoy no tiene fuente es un test que en C15 no vas a poder escribir. Y decirlo también es
-  una respuesta profesional: *"no puedo verificar esto porque el contrato no lo define"*.
-
----
-
-## 10. Candidatos a probar — lista cruda
-
-> Escrita por QA el 2026-09-23. Lista sin ordenar y sin priorizar: se ordena en S7.
-
-- Login con credenciales válidas muestra el cartel de bienvenida con el nombre del usuario — REQ-L04
-- `POST /api/enroll` con `{"courseId":"fundamentos"}` y sesión activa devuelve `200` con `status: "inscrito"` — REQ-A03 caso 1
-- `POST /api/enroll` sin body devuelve `400` con mensaje del campo obligatorio — REQ-A03 caso 2 · REQ-A01
-- `POST /api/enroll` con courseId inexistente devuelve `404` — REQ-A03 caso 3
-- `POST /api/enroll` con curso sin cupos devuelve `200` con `status: "lista-espera"` y badge correcto — REQ-A03 caso 4 · REQ-C05
-- `POST /api/enroll` con prerequisito pendiente devuelve `403` — REQ-A03 caso 5 · REQ-C03 · REQ-C06
-- `POST /api/enroll` sin sesión activa (sin cookie) — comportamiento no definido en el contrato, resultado observado: `401`
-- `GET /api/enroll` (método incorrecto) — no documentado, candidato a incógnita
-- `POST /api/enroll` con JSON malformado — no documentado, candidato a incógnita
-- `POST /api/enroll` con `courseId` en mayúsculas `"Fundamentos"` — sensibilidad a mayúsculas no documentada
-- `GET /api/courses` devuelve `200` con estructura `{courses: [...], total: N}` — REQ-C01
-- Inscripción exitosa reduce en 1 el cupo disponible visible en `GET /api/courses` — REQ-C04
-- Login con contraseña incorrecta 5 veces consecutivas bloquea la cuenta 30 segundos — REQ-L03
-- `POST /api/login` sin campo password devuelve `400` — REQ-L01
-- `POST /api/login` sin campo email devuelve `400` — REQ-L01
+una respuesta profesional: *"no puedo verificar esto porque el contrato no lo define"*.
 

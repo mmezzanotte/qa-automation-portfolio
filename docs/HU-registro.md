@@ -1,90 +1,38 @@
-# HU-Registro — Historia de Usuario
+# HU-REG-01 — Registro de estudiante
 
-> Fuente: definición del curso / backlog del proyecto portfolio  
-> Playground: https://playground.calidadsinhumo.com/registro
+> **Sistema:** Academia sin Humo · `playground.calidadsinhumo.com/registro`
+> **Fuente de los requerimientos:** `playground.calidadsinhumo.com/documentacion`, módulo 1
+> (REQ-R01 a REQ-R07), consultada el 2026-09-19.
+> **Quién la escribió:** historia de ejemplo armada para el curso a partir de esos requerimientos. En
+> un equipo real la escribe producto; aquí se reescribió con el formato que suele llegar a un sprint.
+> **Para qué está en C8:** es la historia que tu skill nunca vio. Con ella se prueba la skill.
 
 ---
 
-## Historia de usuario
+## Historia
 
-**Como** visitante sin cuenta,  
-**quiero** poder crear una cuenta nueva con mi email y una contraseña,  
-**para** acceder a las funciones del sistema como usuario registrado.
+**Como** persona interesada en los cursos de la academia,
+**quiero** crear mi cuenta con mis datos básicos,
+**para** poder iniciar sesión e inscribirme en los cursos.
 
 ---
 
 ## Criterios de aceptación
 
-### CA-R01 — Registro exitoso
-
-**Dado** que el visitante completa todos los campos con datos válidos  
-**Cuando** hace clic en "Registrarse"  
-**Entonces** el sistema crea la cuenta y redirige al login o al dashboard con mensaje de confirmación
-
-### CA-R02 — Email ya registrado
-
-**Dado** que el visitante usa un email que ya existe en el sistema  
-**Cuando** hace clic en "Registrarse"  
-**Entonces** el sistema muestra un mensaje de error indicando que el email ya está en uso
-
-### CA-R03 — Campos requeridos
-
-**Dado** que el visitante no completa algún campo requerido  
-**Cuando** hace clic en "Registrarse"  
-**Entonces** el sistema muestra mensajes de validación para los campos vacíos
-
-### CA-R04 — Formato de email
-
-**Dado** que el visitante ingresa un email con formato inválido  
-**Cuando** hace clic en "Registrarse"  
-**Entonces** el sistema muestra un mensaje de validación de formato de email
-
-### CA-R05 — Contraseña mínima
-
-**Dado** que el visitante ingresa una contraseña que no cumple los requisitos mínimos  
-**Cuando** hace clic en "Registrarse"  
-**Entonces** el sistema muestra un mensaje indicando los requisitos de contraseña
-
----
-
-## Elementos de la pantalla
-
-| Elemento | Tipo | Locator preferido |
+| ID | Criterio | Requerimiento |
 |---|---|---|
-| Campo Nombre | Input tipo text | `getByLabel('Nombre')` |
-| Campo Email | Input tipo email | `getByLabel('Email')` |
-| Campo Contraseña | Input tipo password | `getByLabel('Contraseña')` |
-| Botón Registrarse | Button | `getByRole('button', { name: 'Registrarse' })` |
-| Mensaje de error | Texto | `getByText(...)` o por clase |
-| Enlace a Login | Link | `getByRole('link', { name: 'Inicia sesión' })` |
+| CA1 | El formulario pide nombre completo, email, contraseña y edad. Los cuatro campos son obligatorios. | REQ-R01 |
+| CA2 | El nombre debe tener entre 2 y 50 caracteres. | REQ-R02 |
+| CA3 | El email debe tener formato válido: debe contener un `@` seguido de un dominio con punto. | REQ-R03 |
+| CA4 | La contraseña debe tener entre 8 y 64 caracteres (inclusive). | REQ-R04 |
+| CA5 | La edad debe estar entre 16 y 99 (inclusive). | REQ-R05 |
+| CA6 | Tras un registro exitoso, el formulario se limpia completamente. | REQ-R06 |
+| CA7 | No se puede registrar un email que ya existe en el sistema. | REQ-R07 |
 
 ---
 
-## Relación con otras HU
+## Notas del equipo
 
-| HU relacionada | Relación |
-|---|---|
-| HU-login | El usuario registrado aquí puede iniciar sesión en HU-login |
-
----
-
-## Casos de prueba a derivar
-
-> Esta sección se completa cuando se creen los casos formales en `docs/casos-registro.md`
-
-| CA | Descripción | Caso de prueba | Automatizado |
-|---|---|---|---|
-| CA-R01 | Registro exitoso | CP-R01 (pendiente) | ❌ |
-| CA-R02 | Email ya registrado | CP-R02 (pendiente) | ❌ |
-| CA-R03 | Campos requeridos | CP-R03 (pendiente) | ❌ |
-| CA-R04 | Formato de email | CP-R04 (pendiente) | ❌ |
-| CA-R05 | Contraseña mínima | CP-R05 (pendiente) | ❌ |
-
----
-
-## Notas de implementación
-
-- URL del playground: `https://playground.calidadsinhumo.com/registro`
-- No incluir credenciales reales en ningún archivo del repositorio
-- Verificar los locators en DevTools antes de usarlos en tests
-- El flujo de registro es previo al flujo de login; se puede usar como precondición en tests E2E
+- El registro es la puerta de entrada: si falla, nadie llega al login ni a los cursos.
+- Producto quiere salir con esto en la próxima versión; el diseño del formulario no se va a tocar.
+- Los textos de los mensajes de error todavía no están definidos por producto.
